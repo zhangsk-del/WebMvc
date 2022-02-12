@@ -12,7 +12,7 @@
     <servlet-mapping>
         <servlet-name>mvc</servlet-name>
         <!--只拦截.do请求-->
-        <url-pattern>/test.do</url-pattern>
+        <url-pattern>*.do</url-pattern>
     </servlet-mapping>
 
 </web-app>
