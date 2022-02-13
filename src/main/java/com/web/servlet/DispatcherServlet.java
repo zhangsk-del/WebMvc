@@ -5,12 +5,45 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Properties;
 
 
 /**
  * 根据web.xml配置请求统一处理类
+ *
+ *
  */
 public class DispatcherServlet extends HttpServlet {
+
+    // 存储配置文件信息，类名-包全名
+    private HashMap<String, String> configMap = new HashMap<>();
+
+
+    // 该方法对象创建时加载
+    public void init() {
+        try {
+            load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    // 读取配置文件，获取包名
+    private void load() throws IOException {
+        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("Application.properties");
+        Properties properties = new Properties();
+        properties.load(is);
+        // 遍历集合
+        Enumeration keys = properties.propertyNames();
+        while (keys.hasMoreElements()) {
+            String key = (String) keys.nextElement();
+            String value = properties.getProperty(key);
+            configMap.put(key, value);
+        }
+    }
+
 
     /**
      * 核心处理逻辑
