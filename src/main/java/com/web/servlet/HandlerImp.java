@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-public class HandlerImp implements Handler{
+public class HandlerImp implements Handler {
 
     // 将对象的控制权反转（IOC)
     private HashMap<String, Object> iocMap = new HashMap<>();
@@ -25,7 +25,6 @@ public class HandlerImp implements Handler{
     private HashMap<String, String> configMap = new HashMap<>();
 
 
-
     // 该方法对象创建时加载
     public void init() {
         try {
@@ -33,6 +32,13 @@ public class HandlerImp implements Handler{
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    private Method getMethod(String method, Object obj) throws NoSuchMethodException {
+        Map<String, Method> methodMap = diMap.get(obj);
+        Method md = methodMap.get(method);
+        return md;
     }
 
     // 读取配置文件，获取包名
@@ -92,8 +98,12 @@ public class HandlerImp implements Handler{
             Object obj = getObject(classNamePath);
 
             // 4.获取请求携带的参数
-
+            String md = request.getParameter("method");
+            if (md == null) {//证明不是类名.do方式请求
+                md = url;
+            }
             // 5.获取方法
+            Method method = this.getMethod(md, obj);
 
             // 6.处理请求的参数，将结果返回
 
@@ -106,6 +116,8 @@ public class HandlerImp implements Handler{
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
 
