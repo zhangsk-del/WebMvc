@@ -28,4 +28,19 @@ public interface HandlerMapping {
      */
     Method getMethod(String methodKey, Object obj) throws NoSuchMethodException;
 
+    /**
+     * 自动注入方法
+     *
+     * @param method   method
+     * @param request  request
+     * @param response response
+     * @return 返回多个参数解析
+     * @throws IllegalAccessException    异常抛出
+     * @throws InstantiationException    异常抛出
+     * @throws NoSuchMethodException     异常抛出
+     * @throws InvocationTargetException 异常抛出
+     */
+    Object[] setDI(Method method, HttpServletRequest request, HttpServletResponse response) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException;
 }
+
+

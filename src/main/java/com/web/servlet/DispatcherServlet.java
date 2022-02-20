@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 
@@ -26,6 +27,14 @@ public class DispatcherServlet extends HttpServlet {
         }
     }
 
+    /**
+     * 核心处理类，分发请求
+     *
+     * @param request  request
+     * @param response response
+     * @throws ServletException 异常抛出
+     * @throws IOException      异常抛出
+     */
     public void service(HttpServletRequest request, HttpServletResponse response) throws
             ServletException, IOException {
         try {
@@ -50,10 +59,13 @@ public class DispatcherServlet extends HttpServlet {
             Method method = handlerMapping.getMethod(md, obj);
 
             // 6.处理请求的参数，将结果返回
+            Object[] objects = handlerMapping.setDI(method, request, response);
 
             // 7.执行方法 ,并传递request对象和response对象
+            Object path = method.invoke(obj, objects);
 
             // 8.处理响应信息
+
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -61,6 +73,8 @@ public class DispatcherServlet extends HttpServlet {
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
 
