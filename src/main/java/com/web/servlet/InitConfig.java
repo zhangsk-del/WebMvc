@@ -9,7 +9,7 @@ import java.util.Properties;
 public class InitConfig {
 
     // 存储配置文件信息，类名-包全名
-    private HashMap<String, String> configMap = new HashMap<>();
+    private static HashMap<String, String> configMap = new HashMap<>();
 
     // 读取配置文件，获取包名
     public void load() throws IOException {
@@ -34,5 +34,9 @@ public class InitConfig {
 
     public String getConfigMap(String key) {
         return configMap.get(key);
+    }
+
+    public String putConfigMap(String key, String value) {
+        return configMap.put(key, value);
     }
 }

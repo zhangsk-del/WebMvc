@@ -1,13 +1,17 @@
 package com.web.servlet;
 
 import com.web.annotation.Param;
+import com.web.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileFilter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +23,11 @@ public class HandelerMappingImp implements HandlerMapping {
     // 存类和方法对对应关系----目的自动注入 类对象-----类下所有的方法
     // Map<String, Method> 请求与方法的关系
     private Map<Object, Map<String, Method>> diMap = new HashMap<>();
+
+    // 用于存储请求名与类名之间的关系
+    private Map<String, String> methodWithRealNameMap = new HashMap();
+
+    private InitConfig initConfig = new InitConfig();
 
     @Override
     public Object getObject(String classForNamePath) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -152,8 +161,73 @@ public class HandelerMappingImp implements HandlerMapping {
             }
         }
 
-        // 所有参数处理完毕 返回   Object[]装载的是当前这个method方法所有参数的值
+        // 所有参数处理完毕 返回 Object[]装载的是当前这个method方法所有参数的值
         return parObj;
+    }
+
+    @Override
+    public void ScanAnnction() {
+        String scanPackage = initConfig.getConfigMap("scanPackage");
+        // 获取需要扫描的包
+        if (scanPackage != null) {
+            // 分析包有多少个要扫描
+            String[] split = scanPackage.split(",");
+            for (String scanNaame : split) {
+                // 循环一次获取一个包路径,将包名的点换成/，获取全路径
+                URL url = Thread.currentThread().getContextClassLoader().getResource(scanNaame.replace(".", "/"));
+                if (url == null) {
+                    // 证明配置错误,找下一个包
+                    continue;
+                }
+                // 获取全路径
+                String path = url.getPath();
+                // 根据包路径创建一个与包对应的File对象
+                File file = new File(path);
+                // 获取所有的子对象
+                File[] files = file.listFiles(new FileFilter() {
+                    // 过滤.class文件
+                    @Override
+                    public boolean accept(File pathname) {
+                        if (pathname.isFile() && pathname.getName().endsWith(".class")) {
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+                for (File f : files) {
+                    // 没一次获取一个类名.class文件
+                    String fileName = f.getName();
+                    // 获取类的名字
+                    String name = fileName.substring(0, fileName.indexOf("."));
+                    // 获取类全名
+                    String forname = scanNaame + "." + name;
+                    System.out.println("路径" + forname);
+
+                    // 反射获取类
+                    try {
+                        Class clazz = Class.forName(forname);
+                        RequestMapping annotation = (RequestMapping) clazz.getAnnotation(RequestMapping.class);
+                        if (annotation != null) {// 证明类上有注解
+                            initConfig.putConfigMap(annotation.value(), forname);
+                        }
+                        // 获取类下的所有方法
+                        Method[] methods = clazz.getMethods();
+                        for (Method method : methods) {
+                            // 获取方法上的注解
+                            RequestMapping methodAnnotation = method.getAnnotation(RequestMapping.class);
+                            if (methodAnnotation != null) {
+                                // 获取注解里的请求名
+                                String value = methodAnnotation.value();
+                                value = value.substring(value.indexOf("/") + 1);
+                                methodWithRealNameMap.put(value, forname);
+                            }
+                        }
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 
 }

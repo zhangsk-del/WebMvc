@@ -22,6 +22,7 @@ public class DispatcherServlet extends HttpServlet {
     public void init() {
         try {
             initConfig.load();
+            handlerMapping.ScanAnnction();
         } catch (IOException e) {
             e.printStackTrace();
         }

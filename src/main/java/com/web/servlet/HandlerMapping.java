@@ -41,6 +41,11 @@ public interface HandlerMapping {
      * @throws InvocationTargetException 异常抛出
      */
     Object[] setDI(Method method, HttpServletRequest request, HttpServletResponse response) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException;
+
+    /**
+     * 扫描注解RequestMapping
+     */
+    void ScanAnnction();
 }
 
 
