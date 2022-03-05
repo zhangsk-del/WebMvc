@@ -42,6 +42,14 @@ public class HandelerMappingImp implements HandlerMapping {
             // methodMap 请求与方法的关系
             Map<String, Method> methodMap = new HashMap<>();
             for (Method md : mds) {
+                // 扫描方法上注解 
+                RequestMapping annotation = md.getAnnotation(RequestMapping.class);
+                if (annotation != null) {
+                    String value=annotation.value();
+                    value=value.substring(value.indexOf("/")+1);
+                    methodMap.put(value, md);
+                }
+
                 String name = md.getName();
                 methodMap.put(name, md);
             }
