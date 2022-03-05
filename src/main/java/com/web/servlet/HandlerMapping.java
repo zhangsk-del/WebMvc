@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public interface HandlerMapping {
+interface HandlerMapping {
     /**
      * 获取对象,并获取该类下的所有方法存入diMap
      *
@@ -60,6 +60,14 @@ public interface HandlerMapping {
      * @throws Exception Exception
      */
     void response(Method method, Object type, HttpServletResponse response, HttpServletRequest request) throws Exception;
+
+    /**
+     * getMethodWithRealNameMap 获取请求与类名的映射关系
+     *
+     * @param key key
+     * @return string
+     */
+    String getMethodWithRealNameMap(String key);
 }
 
 

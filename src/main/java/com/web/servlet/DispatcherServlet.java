@@ -48,6 +48,10 @@ public class DispatcherServlet extends HttpServlet {
 
             String classNamePath = initConfig.getConfigMap(className);
 
+            if (classNamePath == null) {// 证明类上没有配置
+                classNamePath = handlerMapping.getMethodWithRealNameMap(url);
+            }
+
             // 3.创建反射对象,并获取类的所有方法
             Object obj = handlerMapping.getObject(classNamePath);
 

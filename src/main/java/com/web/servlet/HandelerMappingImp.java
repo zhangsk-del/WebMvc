@@ -31,8 +31,10 @@ public class HandelerMappingImp implements HandlerMapping {
 
     private InitConfig initConfig = new InitConfig();
 
+
     @Override
     public Object getObject(String classForNamePath) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+
         Class clazz = Class.forName(classForNamePath);
         //控制该对象为单例的
         Object obj = this.iocMap.get(classForNamePath);
@@ -279,6 +281,11 @@ public class HandelerMappingImp implements HandlerMapping {
                 }
             }
         }
+    }
+
+
+    public String getMethodWithRealNameMap(String key) {
+        return methodWithRealNameMap.get(key);
     }
 
 }
