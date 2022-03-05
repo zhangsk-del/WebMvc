@@ -22,7 +22,7 @@ public class DispatcherServlet extends HttpServlet {
     public void init() {
         try {
             initConfig.load();
-            handlerMapping.ScanAnnction();
+            handlerMapping.scanAnnotation();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -66,6 +66,7 @@ public class DispatcherServlet extends HttpServlet {
             Object path = method.invoke(obj, objects);
 
             // 8.处理响应信息
+            handlerMapping.response(method, path, response, request);
 
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -77,7 +78,8 @@ public class DispatcherServlet extends HttpServlet {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
     }
 }

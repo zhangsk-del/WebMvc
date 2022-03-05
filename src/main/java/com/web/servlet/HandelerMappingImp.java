@@ -2,6 +2,8 @@ package com.web.servlet;
 
 import com.web.annotation.Param;
 import com.web.annotation.RequestMapping;
+import com.web.annotation.ResponseBody;
+import com.web.servlet.response.Message;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,11 +44,11 @@ public class HandelerMappingImp implements HandlerMapping {
             // methodMap 请求与方法的关系
             Map<String, Method> methodMap = new HashMap<>();
             for (Method md : mds) {
-                // 扫描方法上注解 
+                // 扫描方法上注解
                 RequestMapping annotation = md.getAnnotation(RequestMapping.class);
                 if (annotation != null) {
-                    String value=annotation.value();
-                    value=value.substring(value.indexOf("/")+1);
+                    String value = annotation.value();
+                    value = value.substring(value.indexOf("/") + 1);
                     methodMap.put(value, md);
                 }
 
@@ -174,7 +176,7 @@ public class HandelerMappingImp implements HandlerMapping {
     }
 
     @Override
-    public void ScanAnnction() {
+    public void scanAnnotation() {
         String scanPackage = initConfig.getConfigMap("scanPackage");
         // 获取需要扫描的包
         if (scanPackage != null) {
@@ -233,6 +235,47 @@ public class HandelerMappingImp implements HandlerMapping {
                     } catch (ClassNotFoundException e) {
                         e.printStackTrace();
                     }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void response(Method method, Object type, HttpServletResponse response, HttpServletRequest request) throws Exception {
+        if (type != null) {
+            if (type instanceof String) {
+                // 1、welco.jsp/redirect 重定向响应格式
+                // 2、welco.jsp/forward 转发响应格式
+                // 3、不带/为json格式响应
+                String path = (String) type;
+                if (!"".equals(path) && !"null".equals(path) && path != null) {
+                    // json
+                    if (path.lastIndexOf("/") == -1) {
+                        Message message = new Message(type);
+                        response.getWriter().append(message.toJSON());
+                        return;
+                    }
+
+                    String newPath = path.substring(0, path.lastIndexOf("/"));
+                    // result 为响应方式
+                    String result = path.substring(path.lastIndexOf("/") + 1);
+                    // redirect、forward
+                    if ("redirect".equals(result)) {
+                        response.sendRedirect(newPath);
+                    } else if ("forward".equals(result)) {
+                        request.getRequestDispatcher(newPath).forward(request, response);
+                    } else {
+                        throw new Exception("response format information is incorrect. Please check");
+                    }
+                }
+            } else {
+                // json形式
+                ResponseBody annotation = method.getAnnotation(ResponseBody.class);
+                if (annotation != null) {
+                    Message mess = new Message(type);
+                    response.getWriter().append(mess.toJSON());
+                } else {
+                    throw new Exception("unable to find ResponseBody annotation");
                 }
             }
         }

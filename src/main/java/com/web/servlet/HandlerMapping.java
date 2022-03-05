@@ -45,7 +45,21 @@ public interface HandlerMapping {
     /**
      * 扫描注解RequestMapping
      */
-    void ScanAnnction();
+    void scanAnnotation();
+
+    /**
+     * 响应结果
+     *
+     * @param method   method
+     * @param type     响应类型
+     *                 1、welco.jsp/redirect 重定向响应格式;
+     *                 2、welco.jsp/forward 转发响应格式;
+     *                 3、不带/为json格式响应
+     * @param response Response
+     * @param request  request
+     * @throws Exception Exception
+     */
+    void response(Method method, Object type, HttpServletResponse response, HttpServletRequest request) throws Exception;
 }
 
 
